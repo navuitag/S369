@@ -1,0 +1,854 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hệ Thống Giao Dịch 369 - SPA</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Rajdhani:wght@300;500;700&display=swap" rel="stylesheet">
+    
+    <!-- Quantum Tesla Theme Configuration -->
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        'display': ['Orbitron', 'sans-serif'],
+                        'body': ['Rajdhani', 'sans-serif'],
+                    },
+                    colors: {
+                        navy: {
+                            900: '#0f172a',
+                            800: '#1e293b',
+                        },
+                        neon: {
+                            cyan: '#06b6d4',
+                            gold: '#fbbf24',
+                            magenta: '#d946ef',
+                            green: '#22c55e'
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        body {
+            background-color: #0f172a;
+            color: #e2e8f0;
+            font-family: 'Rajdhani', sans-serif;
+        }
+
+        .navbar {
+            position: fixed;
+            top: 0;
+            width: 100%;
+            background: rgba(15, 23, 42, 0.95);
+            backdrop-filter: blur(10px);
+            z-index: 1000;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .nav-link {
+            transition: all 0.3s ease;
+        }
+
+        .nav-link:hover {
+            color: #06b6d4;
+            text-shadow: 0 0 10px rgba(6, 182, 212, 0.5);
+        }
+
+        .nav-link.active {
+            color: #06b6d4;
+            text-shadow: 0 0 10px rgba(6, 182, 212, 0.5);
+        }
+        
+        .chart-container {
+            position: relative;
+            width: 100%;
+            max-width: 800px;
+            margin: 0 auto;
+            height: 400px;
+            max-height: 500px;
+        }
+
+        @media (max-width: 768px) {
+            .chart-container {
+                height: 300px;
+            }
+        }
+
+        .glass-panel {
+            background: rgba(30, 41, 59, 0.7);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+        }
+
+        .neon-text {
+            text-shadow: 0 0 10px rgba(6, 182, 212, 0.5);
+        }
+
+        .gold-text {
+            text-shadow: 0 0 10px rgba(251, 191, 36, 0.5);
+        }
+
+        .smooth-scroll {
+            scroll-behavior: smooth;
+        }
+
+        .section {
+            min-height: 100vh;
+            padding-top: 4rem;
+        }
+
+        .neon-glow-gold { box-shadow: 0 0 15px rgba(255, 215, 0, 0.3); }
+        .neon-glow-cyan { box-shadow: 0 0 15px rgba(0, 240, 255, 0.3); }
+        
+        @keyframes pulse-cyan {
+            0%, 100% { transform: scale(1); opacity: 1; }
+            50% { transform: scale(1.05); opacity: 0.8; }
+        }
+        .animate-pulse-cyan { animation: pulse-cyan 3s infinite; }
+    </style>
+</head>
+<body class="antialiased overflow-x-hidden smooth-scroll">
+
+    <!-- NAVIGATION -->
+    <nav class="navbar">
+        <div class="container mx-auto px-4">
+            <div class="flex items-center justify-between h-16">
+                <div class="flex items-center">
+                    <h1 class="font-display text-2xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-neon-cyan to-neon-magenta">
+                        HỆ THỐNG 369
+                    </h1>
+                </div>
+                <div class="hidden md:block">
+                    <div class="ml-10 flex items-baseline space-x-8">
+                        <a href="#hero" class="nav-link text-white font-bold px-3 py-2 rounded-md text-sm" data-section="hero">Trang Chủ</a>
+                        <a href="#buy-simulation" class="nav-link text-gray-300 hover:text-white px-3 py-2 rounded-md text-sm" data-section="buy-simulation">Mô Phỏng BUY</a>
+                        <a href="#sell-simulation" class="nav-link text-gray-300 hover:text-white px-3 py-2 rounded-md text-sm" data-section="sell-simulation">Mô Phỏng SELL</a>
+                        <a href="#trading-guide" class="nav-link text-gray-300 hover:text-white px-3 py-2 rounded-md text-sm" data-section="trading-guide">Cẩm Nang</a>
+                        <a href="#case-study" class="nav-link text-gray-300 hover:text-white px-3 py-2 rounded-md text-sm" data-section="case-study">Case Study</a>
+                    </div>
+                </div>
+                <div class="md:hidden">
+                    <button onclick="toggleMobileMenu()" class="text-gray-300 hover:text-white">
+                        <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
+                        </svg>
+                    </button>
+                </div>
+            </div>
+            <!-- Mobile menu -->
+            <div id="mobile-menu" class="md:hidden hidden">
+                <div class="px-2 pt-2 pb-3 space-y-1 sm:px-3">
+                    <a href="#hero" class="nav-link text-white block px-3 py-2 rounded-md text-base" data-section="hero">Trang Chủ</a>
+                    <a href="#buy-simulation" class="nav-link text-gray-300 hover:text-white block px-3 py-2 rounded-md text-base" data-section="buy-simulation">Mô Phỏng BUY</a>
+                    <a href="#sell-simulation" class="nav-link text-gray-300 hover:text-white block px-3 py-2 rounded-md text-base" data-section="sell-simulation">Mô Phỏng SELL</a>
+                    <a href="#trading-guide" class="nav-link text-gray-300 hover:text-white block px-3 py-2 rounded-md text-base" data-section="trading-guide">Cẩm Nang</a>
+                    <a href="#case-study" class="nav-link text-gray-300 hover:text-white block px-3 py-2 rounded-md text-base" data-section="case-study">Case Study</a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- HERO SECTION -->
+    <section id="hero" class="section relative min-h-screen flex items-center justify-center overflow-hidden">
+        <div class="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1639322537228-f710d846310a?q=80&w=2832&auto=format&fit=crop')] bg-cover bg-center opacity-10"></div>
+        <div class="absolute inset-0 bg-gradient-to-b from-navy-900 via-transparent to-navy-900"></div>
+        
+        <div class="container mx-auto px-4 relative z-10 text-center">
+            <h1 class="font-display text-5xl md:text-8xl font-black mb-4 text-transparent bg-clip-text bg-gradient-to-r from-neon-cyan via-white to-neon-magenta neon-text">
+                HỆ THỐNG 369
+            </h1>
+            <p class="font-body text-2xl md:text-4xl text-neon-gold mb-8 font-bold tracking-widest uppercase">
+                Giải Mã Bản Đồ Vàng (XAUUSD)
+            </p>
+            <div class="max-w-3xl mx-auto bg-navy-800/80 p-6 rounded-lg border-l-4 border-neon-cyan">
+                <p class="text-xl md:text-2xl leading-relaxed text-gray-200">
+                    "Nếu bạn biết đến sự tuyệt vời của 3, 6 và 9, bạn sẽ có chìa khóa của cả vũ trụ." <br>
+                    <span class="text-sm text-neon-cyan mt-2 block">— Nikola Tesla</span>
+                </p>
+            </div>
+            <div class="mt-12 animate-bounce text-neon-cyan text-4xl">
+                &#8595;
+            </div>
+        </div>
+    </section>
+
+    <!-- BUY SIMULATION SECTION -->
+    <section id="buy-simulation" class="section py-20 bg-navy-900">
+        <div class="container mx-auto px-4">
+            <header class="text-center mb-16">
+                <h1 class="font-display text-4xl md:text-6xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-neon-gold via-white to-neon-cyan mb-4">
+                    MÔ PHỎNG ĐIỂM XOÁY 369
+                </h1>
+                <p class="text-neon-cyan tracking-[0.3em] font-light uppercase text-sm md:text-lg">Kỹ thuật vào lệnh BUY nâng cao</p>
+                <div class="mt-8 flex justify-center gap-4">
+                    <span class="px-4 py-1 rounded-full border border-neon-gold text-neon-gold text-xs">#QuyLuật16_09</span>
+                    <span class="px-4 py-1 rounded-full border border-neon-cyan text-neon-cyan text-xs">#TeslaTrading</span>
+                </div>
+            </header>
+
+            <!-- METRICS DASHBOARD -->
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-16">
+                <div class="glass-panel p-6 rounded-2xl border-l-4 border-neon-gold neon-glow-gold">
+                    <span class="text-gray-500 text-xs font-bold uppercase block mb-1">Điểm Biên (Edge)</span>
+                    <div class="text-3xl font-display text-white">4516.0</div>
+                    <p class="text-[10px] text-neon-gold mt-2">Mốc cản cần bị phá vỡ</p>
+                </div>
+                <div class="glass-panel p-6 rounded-2xl border-l-4 border-neon-magenta">
+                    <span class="text-gray-500 text-xs font-bold uppercase block mb-1">Điểm Xoáy (Pivot)</span>
+                    <div class="text-3xl font-display text-white">4509.0</div>
+                    <p class="text-[10px] text-neon-magenta mt-2">Nơi tích lũy năng lượng</p>
+                </div>
+                <div class="glass-panel p-6 rounded-2xl border-l-4 border-neon-cyan neon-glow-cyan animate-pulse-cyan">
+                    <span class="text-gray-500 text-xs font-bold uppercase block mb-1">Vào Lệnh (Entry)</span>
+                    <div class="text-3xl font-display text-white">4516.5</div>
+                    <p class="text-[10px] text-neon-cyan mt-2">Xác nhận sau khi phá 16</p>
+                </div>
+                <div class="glass-panel p-6 rounded-2xl border-l-4 border-red-500">
+                    <span class="text-gray-500 text-xs font-bold uppercase block mb-1">Cắt Lỗ (Stoploss)</span>
+                    <div class="text-3xl font-display text-white">4513.2</div>
+                    <p class="text-[10px] text-red-500 mt-2">Quy tắc 3.3 giá an toàn</p>
+                </div>
+            </div>
+
+            <!-- MAIN VISUALIZATION -->
+            <div class="glass-panel p-8 rounded-3xl mb-16">
+                <div class="flex flex-col md:flex-row justify-between items-center mb-8 gap-4">
+                    <div>
+                        <h2 class="text-2xl font-display text-white">Hành Trình Giá: 16 → 09 → 16</h2>
+                        <p class="text-gray-400 text-sm mt-1">Trực quan hóa sự thay đổi cấu trúc thị trường theo 369</p>
+                    </div>
+                    <div class="flex gap-2">
+                        <button onclick="updateBuyChart('all')" class="px-4 py-2 bg-navy-800 border border-gray-700 rounded-lg text-xs hover:border-neon-cyan transition">Xem Toàn Bộ</button>
+                        <button onclick="updateBuyChart('entry')" class="px-4 py-2 bg-navy-800 border border-gray-700 rounded-lg text-xs hover:border-neon-gold transition">Điểm Khớp</button>
+                    </div>
+                </div>
+
+                <div class="chart-container">
+                    <canvas id="buyPivotChart"></canvas>
+                </div>
+                
+                <div class="mt-6 flex flex-wrap justify-center gap-8 text-xs text-gray-400">
+                    <div class="flex items-center gap-2"><span class="w-3 h-3 bg-neon-cyan rounded-full"></span> Đường giá mô phỏng</div>
+                    <div class="flex items-center gap-2"><span class="w-3 h-3 border border-neon-gold border-dashed bg-transparent rounded-full"></span> Biên kháng cự (16)</div>
+                    <div class="flex items-center gap-2"><span class="w-3 h-3 border border-neon-magenta border-dashed bg-transparent rounded-full"></span> Vùng xoáy (09)</div>
+                </div>
+            </div>
+
+            <!-- LOGIC STEPS -->
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                <div class="relative group">
+                    <div class="absolute -top-4 -left-4 w-12 h-12 bg-navy-800 border border-neon-gold rounded-full flex items-center justify-center font-display text-neon-gold z-10 group-hover:bg-neon-gold group-hover:text-black transition-colors">01</div>
+                    <div class="glass-panel p-8 rounded-2xl h-full border-t-2 border-transparent group-hover:border-neon-gold transition-all">
+                        <h3 class="text-xl font-bold mb-4 text-white">Phản Ứng Tại Biên</h3>
+                        <p class="text-gray-400 text-sm leading-relaxed">
+                            Giá tiếp cận mốc <span class="text-neon-gold">4516.0</span> (Số 6). Tại đây, phe Bán nỗ lực ngăn cản đà tăng, đẩy giá quay đầu giảm xuống.
+                        </p>
+                    </div>
+                </div>
+
+                <div class="relative group">
+                    <div class="absolute -top-4 -left-4 w-12 h-12 bg-navy-800 border border-neon-magenta rounded-full flex items-center justify-center font-display text-neon-magenta z-10 group-hover:bg-neon-magenta group-hover:text-black transition-colors">02</div>
+                    <div class="glass-panel p-8 rounded-2xl h-full border-t-2 border-transparent group-hover:border-neon-magenta transition-all">
+                        <h3 class="text-xl font-bold mb-4 text-white">Tạo Điểm Xoáy</h3>
+                        <p class="text-gray-400 text-sm leading-relaxed">
+                            Giá rơi về vùng <span class="text-neon-magenta">4509.0</span> (Số 9). Đây là "Điểm xoáy". Quan trọng: Giá tuyệt đối không được thủng mốc 06 bên dưới để giữ vững cấu trúc tăng.
+                        </p>
+                    </div>
+                </div>
+
+                <div class="relative group">
+                    <div class="absolute -top-4 -left-4 w-12 h-12 bg-navy-800 border border-neon-cyan rounded-full flex items-center justify-center font-display text-neon-cyan z-10 group-hover:bg-neon-cyan group-hover:text-black transition-colors">03</div>
+                    <div class="glass-panel p-8 rounded-2xl h-full border-t-2 border-transparent group-hover:border-neon-cyan transition-all">
+                        <h3 class="text-xl font-bold mb-4 text-white">Xác Nhận Đột Phá</h3>
+                        <p class="text-gray-400 text-sm leading-relaxed">
+                            Giá từ 09 bật mạnh quay lại phá vỡ <span class="text-neon-gold">4516.0</span>. Đây là lúc phe Bán bị quét sạch. Ta vào lệnh BUY ngay khi giá đóng nến xác nhận trên biên.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- SELL SIMULATION SECTION -->
+    <section id="sell-simulation" class="section py-20 bg-navy-800">
+        <div class="container mx-auto px-4">
+            <header class="text-center mb-16">
+                <h1 class="font-display text-4xl md:text-6xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-neon-gold via-white to-neon-cyan mb-4">
+                    MÔ PHỎNG SELL 369
+                </h1>
+                <p class="text-neon-cyan tracking-[0.3em] font-light uppercase text-sm md:text-lg">Kỹ thuật vào lệnh SELL chuyên sâu</p>
+            </header>
+
+            <!-- CALCULATOR SECTION -->
+            <div class="glass-panel p-8 rounded-3xl mb-16">
+                <div class="flex flex-col md:flex-row justify-between items-center mb-8 gap-4">
+                    <div>
+                        <h2 class="text-2xl font-display text-white">Bộ Lập Kế Hoạch 369</h2>
+                        <p class="text-gray-400 text-sm mt-1">Nhập điểm Entry để tự động hóa ma trận giao dịch của bạn.</p>
+                    </div>
+                    <div class="flex flex-col space-y-4 md:flex-row md:space-x-4 md:space-y-0">
+                        <div class="relative">
+                            <label class="absolute -top-2 left-3 bg-navy-800 px-1 text-xs font-bold text-neon-gold">GIÁ ENTRY</label>
+                            <input id="sellEntryPrice" type="number" step="0.1" value="2646.0" class="w-full rounded-xl border border-gray-700 bg-navy-800 px-4 py-3 text-lg font-bold text-white focus:outline-none focus:border-neon-gold focus:ring-2 focus:ring-neon-gold/20 md:w-48">
+                        </div>
+                        <select id="sellTradeDirection" class="rounded-xl border border-gray-700 bg-navy-800 px-4 py-3 font-semibold text-white focus:outline-none focus:border-neon-cyan focus:ring-2 focus:ring-neon-cyan/20">
+                            <option value="sell">Vị thế SELL</option>
+                            <option value="buy">Vị thế BUY</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-12">
+                    <div class="flex flex-col">
+                        <div class="grid grid-cols-2 gap-4 mb-8">
+                            <div class="bg-navy-900 p-6 rounded-2xl">
+                                <span class="text-xs font-bold uppercase tracking-wider text-gray-400">Stop Loss (SL)</span>
+                                <div id="sellSlDisplay" class="text-3xl font-bold text-red-400 font-mono">2649.3</div>
+                            </div>
+                            <div class="bg-navy-900 p-6 rounded-2xl">
+                                <span class="text-xs font-bold uppercase tracking-wider text-gray-400">Take Profit (TP)</span>
+                                <div id="sellTpDisplay" class="text-3xl font-bold text-neon-green font-mono">2634.0</div>
+                            </div>
+                        </div>
+                        <div class="flex-grow space-y-4">
+                            <h4 class="text-sm font-bold text-gray-400 uppercase tracking-widest mb-4">Lộ trình mục tiêu</h4>
+                            <div id="sellTargetList" class="space-y-3">
+                                <!-- JS populated -->
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="flex flex-col">
+                        <div class="mb-4 flex items-center justify-between">
+                            <h4 class="text-sm font-bold text-gray-400 uppercase tracking-widest">Ma trận nấc thang</h4>
+                            <span class="rounded bg-neon-gold/20 px-2 py-1 text-[10px] font-bold text-neon-gold border border-neon-gold/30">REAL-TIME CALC</span>
+                        </div>
+                        <div class="chart-container">
+                            <canvas id="sellPlanChart"></canvas>
+                        </div>
+                        <p class="mt-4 text-xs italic text-gray-400 text-center">Biểu đồ thể hiện các mốc biên 6 và điểm xoáy 9 tương ứng với Entry.</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- CASE STUDY -->
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                <div class="bg-navy-900 p-8 rounded-2xl border border-neon-gold/30">
+                    <h3 class="text-xl font-bold text-neon-gold mb-6">Kỹ thuật "Điểm Xoáy" SELL</h3>
+                    <p class="mb-6 text-gray-400 leading-relaxed">
+                        Điểm xoáy SELL xảy ra khi giá từ mốc 16 rơi về 09 sau đó bật ngược phá lại 16. Lúc này, mốc 09 chính là "điểm xoáy" kháng cự cực mạnh.
+                    </p>
+                    <div class="space-y-4">
+                        <div class="flex items-center space-x-4">
+                            <div class="flex h-10 w-10 items-center justify-center rounded-full bg-neon-gold font-bold text-black">1</div>
+                            <span class="text-sm">Chờ giá chạm mốc Biên 16</span>
+                        </div>
+                        <div class="flex items-center space-x-4">
+                            <div class="flex h-10 w-10 items-center justify-center rounded-full bg-neon-gold font-bold text-black">2</div>
+                            <span class="text-sm">Xác nhận rút râu tại điểm 09 (Điểm xác nhận)</span>
+                        </div>
+                        <div class="flex items-center space-x-4">
+                            <div class="flex h-10 w-10 items-center justify-center rounded-full bg-neon-gold font-bold text-black">3</div>
+                            <span class="text-sm">Vào lệnh SELL khi giá quay lại phá mốc 16</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-navy-900 p-8 rounded-2xl">
+                    <h3 class="text-xl font-bold text-white mb-6">Checklist 5 Bước</h3>
+                    <div id="sellChecklist" class="space-y-4">
+                        <div class="flex items-start space-x-3">
+                            <input type="checkbox" class="mt-1 h-5 w-5 rounded border-gray-600 text-neon-gold focus:ring-neon-gold bg-navy-800">
+                            <div>
+                                <label class="text-sm font-semibold text-white">Kiểm tra Timing (19h30 - 21h00)</label>
+                                <p class="text-xs text-gray-400">Phiên Mỹ là lúc các mốc 369 nhạy nhất.</p>
+                            </div>
+                        </div>
+                        <div class="flex items-start space-x-3">
+                            <input type="checkbox" class="mt-1 h-5 w-5 rounded border-gray-600 text-neon-gold focus:ring-neon-gold bg-navy-800">
+                            <div>
+                                <label class="text-sm font-semibold text-white">Xác định Biên 6 gần nhất</label>
+                                <p class="text-xs text-gray-400">Giá đóng nến M5 trên hay dưới biên?</p>
+                            </div>
+                        </div>
+                        <div class="flex items-start space-x-3">
+                            <input type="checkbox" class="mt-1 h-5 w-5 rounded border-gray-600 text-neon-gold focus:ring-neon-gold bg-navy-800">
+                            <div>
+                                <label class="text-sm font-semibold text-white">Thắt dây an toàn SL 3.3</label>
+                                <p class="text-xs text-gray-400">Tuyệt đối không gồng quá 3.3 giá.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- TRADING GUIDE SECTION -->
+    <section id="trading-guide" class="section py-20 bg-navy-900">
+        <div class="container mx-auto px-4 max-w-6xl">
+            <header class="text-center mb-16">
+                <h1 class="font-display text-4xl md:text-6xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-neon-gold via-white to-neon-cyan mb-4">
+                    CẨM NANG CHUYÊN SÂU 369
+                </h1>
+                <p class="text-neon-cyan text-xl">Vũ Quang Bình</p>
+            </header>
+
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-12">
+                <!-- Left Column -->
+                <div class="space-y-8">
+                    <div class="glass-panel p-8 rounded-2xl border-l-4 border-neon-gold">
+                        <h2 class="text-2xl font-bold text-neon-gold mb-4">Ma Trận Phiên Giao Dịch</h2>
+                        <div class="space-y-4">
+                            <div class="bg-navy-800 p-4 rounded-lg">
+                                <div class="flex justify-between items-center mb-2">
+                                    <span class="font-bold text-neon-cyan">Phiên Á</span>
+                                    <span class="text-gray-400">06:00 - 14:00</span>
+                                </div>
+                                <p class="text-sm text-gray-400">Biên độ 25-30 giá. Thường tạo "bẫy" giả hoặc đi ngang.</p>
+                            </div>
+                            <div class="bg-navy-800 p-4 rounded-lg">
+                                <div class="flex justify-between items-center mb-2">
+                                    <span class="font-bold text-neon-gold">Phiên Âu</span>
+                                    <span class="text-gray-400">14:00 - 20:00</span>
+                                </div>
+                                <p class="text-sm text-gray-400">Biên độ 20-25 giá. Thường là giai đoạn điều chỉnh.</p>
+                            </div>
+                            <div class="bg-navy-800 p-4 rounded-lg border border-neon-green">
+                                <div class="flex justify-between items-center mb-2">
+                                    <span class="font-bold text-neon-green">Phiên Mỹ</span>
+                                    <span class="text-gray-400">20:30 - 04:00</span>
+                                </div>
+                                <p class="text-sm text-gray-400">Biên độ 50-100 giá. Giai đoạn chính, 87% các cú bùng nổ.</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="glass-panel p-8 rounded-2xl border-l-4 border-neon-magenta">
+                        <h2 class="text-2xl font-bold text-neon-magenta mb-4">Điểm Xác Nhận Vào Lệnh</h2>
+                        <div class="space-y-4">
+                            <div>
+                                <h4 class="font-bold text-neon-cyan mb-2">Vùng xác nhận tăng/giảm:</h4>
+                                <p class="text-sm text-gray-400 mb-3">Các mốc đuôi quan trọng: <span class="text-neon-gold">2.6, 4.6, 5.6, 7.6, 8.6, 10.6</span></p>
+                            </div>
+                            <div>
+                                <h4 class="font-bold text-neon-green mb-2">Điểm xác nhận BUY:</h4>
+                                <p class="text-sm text-gray-400">Xác nhận tại <span class="text-neon-cyan">4.9, 5.3</span> với điều kiện giá không chạm <span class="text-neon-gold">4.6</span></p>
+                            </div>
+                            <div>
+                                <h4 class="font-bold text-red-400 mb-2">Điểm xác nhận SELL:</h4>
+                                <p class="text-sm text-gray-400">Xác nhận tại <span class="text-neon-cyan">4.9, 5.3</span> với điều kiện giá không chạm <span class="text-neon-gold">5.6</span></p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Right Column -->
+                <div class="space-y-8">
+                    <div class="glass-panel p-8 rounded-2xl border-l-4 border-neon-cyan">
+                        <h2 class="text-2xl font-bold text-neon-cyan mb-4">Quản Trị Rủi Ro</h2>
+                        <div class="space-y-4">
+                            <div class="bg-navy-800 p-4 rounded-lg">
+                                <h4 class="font-bold text-neon-magenta mb-2">Dừng lỗ tối đa: 3.3 giá</h4>
+                                <p class="text-sm text-gray-400">Đây là khoảng cách an toàn toán học để bảo vệ kho báu của bạn.</p>
+                            </div>
+                            <div class="bg-navy-800 p-4 rounded-lg">
+                                <h4 class="font-bold text-neon-gold mb-2">Điều kiện giữ lệnh</h4>
+                                <p class="text-sm text-gray-400">Giá không phá được biên 6 (.6) của các vùng tương ứng.</p>
+                            </div>
+                            <div class="bg-navy-800 p-4 rounded-lg">
+                                <h4 class="font-bold text-red-400 mb-2">Tín hiệu từ chối</h4>
+                                <p class="text-sm text-gray-400">Nếu giá chạm 13.6 hoặc 15.6 mà có nến rút râu, nên cắt lệnh.</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="glass-panel p-8 rounded-2xl">
+                        <h2 class="text-2xl font-bold text-white mb-4">Bảng Scalping Trung Hạn</h2>
+                        <div class="overflow-x-auto">
+                            <table class="w-full text-sm">
+                                <thead>
+                                    <tr class="border-b border-gray-700">
+                                        <th class="text-left py-3 text-neon-cyan">Loại lệnh</th>
+                                        <th class="text-left py-3 text-neon-gold">Entry tiêu biểu</th>
+                                        <th class="text-left py-3 text-neon-green">Take Profit</th>
+                                    </tr>
+                                </thead>
+                                <tbody class="text-gray-400">
+                                    <tr class="border-b border-gray-800">
+                                        <td class="py-3 text-neon-green font-bold">BUY</td>
+                                        <td class="py-3">19, 49, 79, 109</td>
+                                        <td class="py-3">Buy 49 → TP 63; Buy 79 → TP 93</td>
+                                    </tr>
+                                    <tr>
+                                        <td class="py-3 text-red-400 font-bold">SELL</td>
+                                        <td class="py-3">113, 83, 53, 23</td>
+                                        <td class="py-3">Sell 83 → TP 69; Sell 53 → TP 39</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- CASE STUDY SECTION -->
+    <section id="case-study" class="section py-20 bg-navy-800">
+        <div class="container mx-auto px-4">
+            <header class="text-center mb-16">
+                <h1 class="font-display text-4xl md:text-6xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-neon-gold via-white to-neon-cyan mb-4">
+                    CASE STUDY THỰC CHIẾN VÀNG
+                </h1>
+                <p class="text-neon-cyan text-xl">Phân tích hành trình giá từ 2643 đến 2686</p>
+            </header>
+
+            <!-- MAIN VISUALIZATION -->
+            <div class="glass-panel p-8 rounded-3xl mb-16">
+                <div class="chart-container">
+                    <canvas id="caseStudyChart"></canvas>
+                </div>
+                <div class="mt-6 text-center">
+                    <p class="text-gray-400 text-sm">Hành trình giá Vàng: 2643 → 2646 (Entry) → 2658 (TP1) → 2666 → 2686 (TP2)</p>
+                </div>
+            </div>
+
+            <!-- NARRATIVE CARDS -->
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                <div class="bg-navy-900 p-8 rounded-2xl border border-neon-gold/30 hover:border-neon-gold transition-colors group">
+                    <div class="text-neon-gold font-bold text-xl mb-4 group-hover:neon-text">
+                        <i class="fas fa-door-open mr-2"></i> Pha 1: Entry (2643-2646)
+                    </div>
+                    <p class="text-gray-400 text-sm mb-6">
+                        Tại sao mua ở đây? Vì 2646 là biên Trung hạn. Giá rút râu tại 46 xác nhận phe mua kiểm soát "bức tường" này.
+                    </p>
+                    <div class="bg-navy-800 p-4 rounded text-center">
+                        <span class="block text-xs text-gray-500">Stoploss Ban Đầu</span>
+                        <span class="text-neon-magenta font-bold font-mono">2636.0 (Biên Trước)</span>
+                    </div>
+                </div>
+
+                <div class="bg-navy-900 p-8 rounded-2xl border border-neon-cyan/30 hover:border-neon-cyan transition-colors group">
+                    <div class="text-neon-cyan font-bold text-xl mb-4 group-hover:neon-text">
+                        <i class="fas fa-route mr-2"></i> Pha 2: Dịch SL (Trailing)
+                    </div>
+                    <p class="text-gray-400 text-sm mb-6">
+                        Khi giá phá 2658 (TP1), dời SL về Entry. Khi phá 2666, dời SL lên 2656. Luôn nấp sau "bức tường" số 6 vừa phá.
+                    </p>
+                    <div class="bg-navy-800 p-4 rounded text-center">
+                        <span class="block text-xs text-gray-500">Trạng Thái</span>
+                        <span class="text-neon-green font-bold font-mono">Risk Free (Vô Lo)</span>
+                    </div>
+                </div>
+
+                <div class="bg-navy-900 p-8 rounded-2xl border border-neon-green/30 hover:border-neon-green transition-colors group">
+                    <div class="text-neon-green font-bold text-xl mb-4 group-hover:neon-text">
+                        <i class="fas fa-flag-checkered mr-2"></i> Pha 3: Chốt Lời (2686)
+                    </div>
+                    <p class="text-gray-400 text-sm mb-6">
+                        TP2 tại 2686 vì đây là Biên Dài Hạn. Hết một vòng lặp từ 2600. Đừng tham lam, hãy chốt tại biên.
+                    </p>
+                    <div class="bg-navy-800 p-4 rounded text-center">
+                        <span class="block text-xs text-gray-500">Tổng Lợi Nhuận</span>
+                        <span class="text-neon-gold font-bold font-mono">+400 Pips</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- FOOTER -->
+    <footer class="bg-black py-12 border-t border-gray-900 text-center">
+        <div class="container mx-auto px-4">
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8 mb-8">
+                <div>
+                    <h3 class="text-white font-bold mb-4">Hệ Thống 369</h3>
+                    <p class="text-gray-600 text-sm">Phương pháp giao dịch vàng dựa trên toán học Tesla</p>
+                </div>
+                <div>
+                    <h3 class="text-white font-bold mb-4">Trang Chính</h3>
+                    <div class="space-y-2">
+                        <a href="#hero" class="block text-gray-400 hover:text-neon-cyan text-sm">Trang Chủ</a>
+                        <a href="#buy-simulation" class="block text-gray-400 hover:text-neon-cyan text-sm">Mô Phỏng BUY</a>
+                        <a href="#sell-simulation" class="block text-gray-400 hover:text-neon-cyan text-sm">Mô Phỏng SELL</a>
+                    </div>
+                </div>
+                <div>
+                    <h3 class="text-white font-bold mb-4">Tài Nguyên</h3>
+                    <div class="space-y-2">
+                        <a href="#trading-guide" class="block text-gray-400 hover:text-neon-cyan text-sm">Cẩm Nang</a>
+                        <a href="#case-study" class="block text-white font-bold text-sm">Case Study</a>
+                    </div>
+                </div>
+            </div>
+            <p class="font-display text-neon-cyan text-xl mb-4">HỆ THỐNG 369</p>
+            <p class="text-gray-600 text-sm max-w-2xl mx-auto">
+                Dữ liệu dựa trên phân tích kế hoạch thực tế (PLAN 26XX). Giao dịch tài chính có rủi ro cao. Hãy sử dụng kiến thức này để quản trị rủi ro, không phải để đánh bạc.
+            </p>
+            <div class="mt-8 text-neon-gold opacity-50 text-xs">
+                Generated by BlackBoxAI • Data Source: Tesla 369 System
+            </div>
+        </div>
+    </footer>
+
+    <!-- JAVASCRIPT LOGIC -->
+    <script>
+        // Navigation and mobile menu
+        function toggleMobileMenu() {
+            const menu = document.getElementById('mobile-menu');
+            menu.classList.toggle('hidden');
+        }
+
+        // Smooth scrolling and active navigation
+        document.addEventListener('DOMContentLoaded', function() {
+            const navLinks = document.querySelectorAll('.nav-link');
+            const sections = document.querySelectorAll('.section');
+
+            // Update active nav link on scroll
+            function updateActiveNav() {
+                let current = '';
+                sections.forEach(section => {
+                    const sectionTop = section.offsetTop - 100;
+                    if (pageYOffset >= sectionTop) {
+                        current = section.getAttribute('id');
+                    }
+                });
+
+                navLinks.forEach(link => {
+                    link.classList.remove('text-white', 'font-bold');
+                    link.classList.add('text-gray-300');
+                    if (link.getAttribute('data-section') === current) {
+                        link.classList.remove('text-gray-300');
+                        link.classList.add('text-white', 'font-bold');
+                    }
+                });
+            }
+
+            window.addEventListener('scroll', updateActiveNav);
+
+            // Smooth scroll for navigation links
+            navLinks.forEach(link => {
+                link.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    const targetId = this.getAttribute('data-section');
+                    const targetSection = document.getElementById(targetId);
+                    if (targetSection) {
+                        targetSection.scrollIntoView({ behavior: 'smooth' });
+                    }
+                });
+            });
+
+            // Initialize charts
+            initCharts();
+        });
+
+        // Chart configurations
+        Chart.defaults.color = '#94a3b8';
+        Chart.defaults.font.family = "'Rajdhani', sans-serif";
+
+        function initCharts() {
+            // Buy Pivot Chart
+            const buyPivotData = {
+                labels: ['T0: Setup', 'T1: Break 46', 'T2: Retest', 'T3: Rally', 'T4: TP1 (58)', 'T5: Break 66', 'T6: Rally', 'T7: TP2 (86)'],
+                datasets: [
+                    {
+                        label: 'Giá Vàng (Mô Phỏng)',
+                        data: [4508, 4517, 4510, 4520, 4525, 4530, 4540, 4550],
+                        borderColor: '#06b6d4',
+                        backgroundColor: 'rgba(6, 182, 212, 0.1)',
+                        borderWidth: 3,
+                        tension: 0.3,
+                        fill: true
+                    },
+                    {
+                        label: 'Biên Kháng Cự (16)',
+                        data: [4516, 4516, 4516, 4516, 4516, 4516, 4516, 4516],
+                        borderColor: '#fbbf24',
+                        borderDash: [5, 5],
+                        borderWidth: 2,
+                        pointRadius: 0,
+                        fill: false
+                    },
+                    {
+                        label: 'Vùng Xoáy (09)',
+                        data: [4509, 4509, 4509, 4509, 4509, 4509, 4509, 4509],
+                        borderColor: '#d946ef',
+                        borderDash: [5, 5],
+                        borderWidth: 2,
+                        pointRadius: 0,
+                        fill: false
+                    }
+                ]
+            };
+
+            new Chart(document.getElementById('buyPivotChart'), {
+                type: 'line',
+                data: buyPivotData,
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { position: 'top' },
+                        tooltip: {
+                            backgroundColor: 'rgba(15, 23, 42, 0.9)',
+                            titleColor: '#fbbf24',
+                            bodyColor: '#e2e8f0'
+                        }
+                    },
+                    scales: {
+                        y: {
+                            grid: { color: '#1e293b' },
+                            suggestedMin: 4500,
+                            suggestedMax: 4560
+                        },
+                        x: { grid: { display: false } }
+                    }
+                }
+            });
+
+            // Sell Plan Chart
+            const sellPlanData = {
+                labels: ['Biên 1', 'Biên 2', 'Biên 3', 'Biên 4', 'Biên 5'],
+                datasets: [{
+                    label: 'Mức Độ Cản',
+                    data: [80, 40, 60, 90, 50],
+                    backgroundColor: [
+                        'rgba(251, 191, 36, 0.8)', 
+                        'rgba(251, 191, 36, 0.3)',
+                        'rgba(251, 191, 36, 0.5)',
+                        'rgba(251, 191, 36, 0.9)',
+                        'rgba(251, 191, 36, 0.4)'
+                    ],
+                    borderRadius: 4
+                }]
+            };
+
+            new Chart(document.getElementById('sellPlanChart'), {
+                type: 'bar',
+                data: sellPlanData,
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { legend: { display: false } },
+                    scales: {
+                        x: { grid: { display: false } },
+                        y: { display: false }
+                    }
+                }
+            });
+
+            // Case Study Chart
+            const caseStudyData = {
+                labels: ['Entry Zone', 'TP1', 'TP2', 'Final'],
+                datasets: [
+                    {
+                        label: 'Giá Vàng',
+                        data: [2643, 2658, 2666, 2686],
+                        borderColor: '#06b6d4',
+                        backgroundColor: 'rgba(6, 182, 212, 0.1)',
+                        borderWidth: 3,
+                        tension: 0.3
+                    },
+                    {
+                        label: 'Stoploss (Dynamic)',
+                        data: [2636, 2643, 2656, 2656],
+                        borderColor: '#d946ef',
+                        borderWidth: 2,
+                        stepped: true,
+                        pointStyle: 'crossRot'
+                    }
+                ]
+            };
+
+            new Chart(document.getElementById('caseStudyChart'), {
+                type: 'line',
+                data: caseStudyData,
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { position: 'top' },
+                        tooltip: {
+                            backgroundColor: 'rgba(15, 23, 42, 0.9)',
+                            titleColor: '#fbbf24',
+                            bodyColor: '#e2e8f0'
+                        }
+                    },
+                    scales: {
+                        y: {
+                            grid: { color: '#1e293b' },
+                            suggestedMin: 2630,
+                            suggestedMax: 2690
+                        },
+                        x: { grid: { display: false } }
+                    }
+                }
+            });
+
+            // Populate sell targets
+            populateSellTargets();
+        }
+
+        function updateBuyChart(view) {
+            console.log('Updating buy chart:', view);
+            // Chart update logic would go here
+        }
+
+        function populateSellTargets() {
+            const targetList = document.getElementById('sellTargetList');
+            const targets = [
+                { price: '2640', level: 'Biên Hỗ Trợ' },
+                { price: '2634', level: 'TP1 Chính' },
+                { price: '2630', level: 'Biên Hỗ Trợ' },
+                { price: '2624', level: 'TP2' }
+            ];
+
+            targetList.innerHTML = targets.map(target => `
+                <div class="flex justify-between items-center p-3 bg-navy-800 rounded-lg">
+                    <span class="text-neon-gold font-mono">${target.price}</span>
+                    <span class="text-gray-400 text-sm">${target.level}</span>
+                </div>
+            `).join('');
+        }
+
+        // Update SL/TP displays based on entry price
+        function updateSellCalculations() {
+            const entryPrice = parseFloat(document.getElementById('sellEntryPrice').value) || 2646.0;
+            const direction = document.getElementById('sellTradeDirection').value;
+            
+            let slPrice, tpPrice;
+            if (direction === 'sell') {
+                slPrice = entryPrice + 3.3;
+                tpPrice = entryPrice - 12.0;
+            } else {
+                slPrice = entryPrice - 3.3;
+                tpPrice = entryPrice + 12.0;
+            }
+            
+            document.getElementById('sellSlDisplay').textContent = slPrice.toFixed(1);
+            document.getElementById('sellTpDisplay').textContent = tpPrice.toFixed(1);
+        }
+
+        // Add event listeners
+        document.addEventListener('DOMContentLoaded', function() {
+            const entryInput = document.getElementById('sellEntryPrice');
+            const directionSelect = document.getElementById('sellTradeDirection');
+            
+            if (entryInput && directionSelect) {
+                entryInput.addEventListener('input', updateSellCalculations);
+                directionSelect.addEventListener('change', updateSellCalculations);
+                updateSellCalculations();
+            }
+        });
+    </script>
+</body>
+</html>

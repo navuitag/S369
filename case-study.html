@@ -1,0 +1,526 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hệ Thống 369: Case Study Thực Chiến Vàng</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&family=Roboto+Mono:wght@300;400;700&display=swap" rel="stylesheet">
+
+    <!-- Theme Configuration: Quantum/Tesla Aesthetic -->
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        'orbitron': ['Orbitron', 'sans-serif'],
+                        'mono': ['Roboto Mono', 'monospace'],
+                    },
+                    colors: {
+                        tesla: {
+                            dark: '#0B0F19',     // Deep Space
+                            panel: '#151B2B',    // Panel BG
+                            gold: '#FFD700',     // The 6 (Edge)
+                            cyan: '#00F0FF',     // The 9 (Confirmation)
+                            magenta: '#FF00FF',  // The 3 (Stop)
+                            success: '#00FF9D',
+                            danger: '#FF4D4D'
+                        }
+                    },
+                    boxShadow: {
+                        'neon-gold': '0 0 10px rgba(255, 215, 0, 0.3)',
+                        'neon-cyan': '0 0 10px rgba(0, 240, 255, 0.3)',
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        body {
+            background-color: #0B0F19;
+            color: #E2E8F0;
+            font-family: 'Roboto Mono', monospace;
+            overflow-x: hidden;
+        }
+
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: #0B0F19; }
+        ::-webkit-scrollbar-thumb { background: #1F2937; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #FFD700; }
+
+        /* Chart Container Styling */
+        .chart-container {
+            position: relative;
+            width: 100%;
+            max-width: 100%;
+            height: 400px;
+            margin: 0 auto;
+        }
+        @media (min-width: 1024px) {
+            .chart-container { height: 500px; }
+        }
+
+        /* Utility Classes */
+        .glass-panel {
+            background: rgba(21, 27, 43, 0.7);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+        }
+        
+        .glow-text { text-shadow: 0 0 10px currentColor; }
+
+        .navbar {
+            position: fixed;
+            top: 0;
+            width: 100%;
+            background: rgba(11, 15, 25, 0.95);
+            backdrop-filter: blur(10px);
+            z-index: 1000;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .nav-link {
+            transition: all 0.3s ease;
+        }
+
+        .nav-link:hover {
+            color: #00F0FF;
+            text-shadow: 0 0 10px rgba(0, 240, 255, 0.5);
+        }
+    </style>
+</head>
+<body class="antialiased">
+
+    <!-- NAVIGATION -->
+    <nav class="navbar">
+        <div class="container mx-auto px-4">
+            <div class="flex items-center justify-between h-16">
+                <div class="flex items-center">
+                    <h1 class="font-orbitron text-2xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-tesla-gold via-white to-tesla-cyan">
+                        HỆ THỐNG 369
+                    </h1>
+                </div>
+                <div class="hidden md:block">
+                    <div class="ml-10 flex items-baseline space-x-8">
+                        <a href="index.html" class="nav-link text-gray-300 hover:text-white px-3 py-2 rounded-md text-sm">Trang Chủ</a>
+                        <a href="buy-simulation.html" class="nav-link text-gray-300 hover:text-white px-3 py-2 rounded-md text-sm">Mô Phỏng BUY</a>
+                        <a href="sell-simulation.html" class="nav-link text-gray-300 hover:text-white px-3 py-2 rounded-md text-sm">Mô Phỏng SELL</a>
+                        <a href="trading-guide.html" class="nav-link text-gray-300 hover:text-white px-3 py-2 rounded-md text-sm">Cẩm Nang</a>
+                        <a href="case-study.html" class="nav-link text-white font-bold px-3 py-2 rounded-md text-sm">Case Study</a>
+                    </div>
+                </div>
+                <div class="md:hidden">
+                    <button onclick="toggleMobileMenu()" class="text-gray-300 hover:text-white">
+                        <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
+                        </svg>
+                    </button>
+                </div>
+            </div>
+            <!-- Mobile menu -->
+            <div id="mobile-menu" class="md:hidden hidden">
+                <div class="px-2 pt-2 pb-3 space-y-1 sm:px-3">
+                    <a href="index.html" class="nav-link text-gray-300 hover:text-white block px-3 py-2 rounded-md text-base">Trang Chủ</a>
+                    <a href="buy-simulation.html" class="nav-link text-gray-300 hover:text-white block px-3 py-2 rounded-md text-base">Mô Phỏng BUY</a>
+                    <a href="sell-simulation.html" class="nav-link text-gray-300 hover:text-white block px-3 py-2 rounded-md text-base">Mô Phỏng SELL</a>
+                    <a href="trading-guide.html" class="nav-link text-gray-300 hover:text-white block px-3 py-2 rounded-md text-base">Cẩm Nang</a>
+                    <a href="case-study.html" class="nav-link text-white font-bold block px-3 py-2 rounded-md text-base">Case Study</a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main content với padding-top -->
+    <div class="pt-16">
+
+    <!-- HEADER: THE TESLA GATEWAY -->
+    <header class="relative py-20 px-4 border-b border-gray-800 bg-[url('https://images.unsplash.com/photo-1634152962476-4b8a00e1915c?q=80&w=2000&auto=format&fit=crop')] bg-cover bg-center">
+        <div class="absolute inset-0 bg-tesla-dark/90"></div>
+        <div class="container mx-auto text-center relative z-10">
+            <h1 class="font-orbitron text-5xl md:text-7xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-tesla-gold via-white to-tesla-cyan mb-4 glow-text">
+                HỆ THỐNG 369
+            </h1>
+            <p class="text-xl md:text-2xl text-tesla-cyan font-light tracking-widest mb-8">
+                CẨM NANG THỰC CHIẾN & CASE STUDY VÀNG (26XX)
+            </p>
+            <div class="inline-block bg-tesla-panel border border-tesla-gold px-6 py-2 rounded-full">
+                <span class="text-tesla-gold font-bold">#Phá6Tìm6</span> &nbsp;|&nbsp; 
+                <span class="text-tesla-cyan font-bold">#QuyLuật3.3</span> &nbsp;|&nbsp; 
+                <span class="text-tesla-magenta font-bold">#MaTrậnSố</span>
+            </div>
+        </div>
+    </header>
+
+    <!-- SECTION 1: THE PHILOSOPHY (DATA OVERVIEW) -->
+    <section class="py-16 px-4 bg-tesla-dark">
+        <div class="container mx-auto">
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+                
+                <!-- Introduction Text -->
+                <div>
+                    <h2 class="font-orbitron text-3xl text-tesla-gold mb-6 border-l-4 border-tesla-gold pl-4">
+                        1. Bản Chất Ma Trận Số
+                    </h2>
+                    <p class="text-lg text-gray-400 mb-6 leading-relaxed">
+                        Hệ thống không dự đoán giá ngẫu nhiên. Nó dựa trên <span class="text-tesla-cyan font-bold">Digital Roots (Gốc Số)</span>. Trong đó:
+                    </p>
+                    <ul class="space-y-4 mb-8">
+                        <li class="flex items-center bg-tesla-panel p-4 rounded-lg border-l-4 border-tesla-gold">
+                            <i class="fas fa-cube text-tesla-gold text-2xl mr-4"></i>
+                            <div>
+                                <strong class="text-white text-xl">Số 6 (Biên Cứng):</strong>
+                                <p class="text-sm text-gray-400">Là bức tường vật lý. "Cản luôn là 6". Ví dụ: 2616, 2646.</p>
+                            </div>
+                        </li>
+                        <li class="flex items-center bg-tesla-panel p-4 rounded-lg border-l-4 border-tesla-cyan">
+                            <i class="fas fa-check-circle text-tesla-cyan text-2xl mr-4"></i>
+                            <div>
+                                <strong class="text-white text-xl">Số 9 (Xác Nhận):</strong>
+                                <p class="text-sm text-gray-400">Điểm khởi đầu hoặc kết thúc chu kỳ. Nơi an toàn để vào lệnh.</p>
+                            </div>
+                        </li>
+                        <li class="flex items-center bg-tesla-panel p-4 rounded-lg border-l-4 border-tesla-magenta">
+                            <i class="fas fa-shield-alt text-tesla-magenta text-2xl mr-4"></i>
+                            <div>
+                                <strong class="text-white text-xl">Số 3 (Bảo Vệ):</strong>
+                                <p class="text-sm text-gray-400">Giới hạn của sự sai lệch. Stoploss luôn là 3.3 giá.</p>
+                            </div>
+                        </li>
+                    </ul>
+                </div>
+
+                <!-- Visualization: Number Weight Chart -->
+                <div class="glass-panel p-6 rounded-2xl">
+                    <h3 class="text-center text-tesla-cyan mb-4 font-orbitron">Tầm Quan Trọng Của Các Đuôi Số</h3>
+                    <div class="chart-container" style="height: 350px;">
+                        <canvas id="weightChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- SECTION 2: THE CASE STUDY (MAIN VISUALIZATION) -->
+    <section class="py-16 px-4 bg-gradient-to-b from-tesla-dark to-tesla-panel">
+        <div class="container mx-auto">
+            <div class="text-center mb-12">
+                <h2 class="font-orbitron text-4xl text-white mb-2">2. Case Study Thực Tế: Vàng 26xx</h2>
+                <p class="text-gray-400">Phân tích hành trình giá từ <span class="text-tesla-gold font-bold">2643</span> đến <span class="text-tesla-success font-bold">2686</span></p>
+            </div>
+
+            <!-- The Main Chart -->
+            <div class="glass-panel p-4 md:p-8 rounded-2xl shadow-neon-cyan mb-12">
+                <div class="chart-container">
+                    <canvas id="caseStudyChart"></canvas>
+                </div>
+            </div>
+
+            <!-- Narrative Cards (The Story of the Trade) -->
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <!-- Phase 1: Entry -->
+                <div class="bg-tesla-dark p-6 rounded-xl border border-tesla-gold/30 hover:border-tesla-gold transition-colors group">
+                    <div class="text-tesla-gold font-bold text-lg mb-2 group-hover:glow-text">
+                        <i class="fas fa-door-open mr-2"></i> Pha 1: Entry (2643-2646)
+                    </div>
+                    <p class="text-gray-400 text-sm mb-4">
+                        Tại sao mua ở đây? Vì 2646 là biên Trung hạn. Giá rút râu tại 46 xác nhận phe mua kiểm soát "bức tường" này.
+                    </p>
+                    <div class="bg-tesla-panel p-3 rounded text-center">
+                        <span class="block text-xs text-gray-500">Stoploss Ban Đầu</span>
+                        <span class="text-tesla-magenta font-bold font-mono">2636.0 (Biên Trước)</span>
+                    </div>
+                </div>
+
+                <!-- Phase 2: Trailing -->
+                <div class="bg-tesla-dark p-6 rounded-xl border border-tesla-cyan/30 hover:border-tesla-cyan transition-colors group">
+                    <div class="text-tesla-cyan font-bold text-lg mb-2 group-hover:glow-text">
+                        <i class="fas fa-route mr-2"></i> Pha 2: Dịch SL (Trailing)
+                    </div>
+                    <p class="text-gray-400 text-sm mb-4">
+                        Khi giá phá 2658 (TP1), dời SL về Entry. Khi phá 2666, dời SL lên 2656. Luôn nấp sau "bức tường" số 6 vừa phá.
+                    </p>
+                    <div class="bg-tesla-panel p-3 rounded text-center">
+                        <span class="block text-xs text-gray-500">Trạng Thái</span>
+                        <span class="text-tesla-success font-bold font-mono">Risk Free (Vô Lo)</span>
+                    </div>
+                </div>
+
+                <!-- Phase 3: Take Profit -->
+                <div class="bg-tesla-dark p-6 rounded-xl border border-tesla-success/30 hover:border-tesla-success transition-colors group">
+                    <div class="text-tesla-success font-bold text-lg mb-2 group-hover:glow-text">
+                        <i class="fas fa-flag-checkered mr-2"></i> Pha 3: Chốt Lời (2686)
+                    </div>
+                    <p class="text-gray-400 text-sm mb-4">
+                        TP2 tại 2686 vì đây là Biên Dài Hạn. Hết một vòng lặp từ 2600. Đừng tham lam, hãy chốt tại biên.
+                    </p>
+                    <div class="bg-tesla-panel p-3 rounded text-center">
+                        <span class="block text-xs text-gray-500">Tổng Lợi Nhuận</span>
+                        <span class="text-tesla-gold font-bold font-mono">+400 Pips</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- SECTION 3: THE RULES (LOGIC) -->
+    <section class="py-16 px-4 bg-tesla-dark">
+        <div class="container mx-auto">
+            <h2 class="font-orbitron text-3xl text-center text-white mb-12">Nguyên Tắc Bất Di Bất Dịch</h2>
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-5xl mx-auto">
+                
+                <!-- Rule 1: The Rule of 6 -->
+                <div class="glass-panel p-8 rounded-2xl flex flex-col md:flex-row items-center gap-6">
+                    <div class="w-full md:w-1/2">
+                        <h3 class="text-tesla-gold text-2xl font-bold mb-4">Luật "Phá 6 Tìm 6"</h3>
+                        <p class="text-gray-300">
+                            Giá di chuyển theo bậc thang. Nếu phá vỡ biên 16, đích đến chắc chắn là 26, 36 hoặc 46. Không bao giờ đoán đỉnh, chỉ follow theo các mốc 6.
+                        </p>
+                    </div>
+                    <div class="w-full md:w-1/2 h-48 chart-container">
+                        <canvas id="rule6Chart"></canvas>
+                    </div>
+                </div>
+
+                <!-- Rule 2: The 3.3 Shield -->
+                <div class="glass-panel p-8 rounded-2xl flex flex-col md:flex-row items-center gap-6">
+                    <div class="w-full md:w-1/2 order-2 md:order-1 h-48 flex flex-col justify-center items-center bg-tesla-panel rounded-xl border border-tesla-magenta/50">
+                        <div class="text-6xl font-bold text-tesla-magenta mb-2">3.3</div>
+                        <div class="text-gray-400 uppercase tracking-widest text-sm">Max Stoploss (USD)</div>
+                    </div>
+                    <div class="w-full md:w-1/2 order-1 md:order-2">
+                        <h3 class="text-tesla-magenta text-2xl font-bold mb-4">Khiên Bảo Vệ 3.3</h3>
+                        <p class="text-gray-300">
+                            Nếu giá đi ngược 3.3 giá, cấu trúc vi mô đã gãy. Đừng gồng lỗ. Cắt ngay và chờ cơ hội tại mốc 6 tiếp theo.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- FOOTER -->
+    <footer class="bg-black py-12 border-t border-gray-900 text-center">
+        <div class="container mx-auto px-4">
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8 mb-8">
+                <div>
+                    <h3 class="text-white font-bold mb-4">Hệ Thống 369</h3>
+                    <p class="text-gray-600 text-sm">Phương pháp giao dịch vàng dựa trên toán học Tesla</p>
+                </div>
+                <div>
+                    <h3 class="text-white font-bold mb-4">Trang Chính</h3>
+                    <div class="space-y-2">
+                        <a href="index.html" class="block text-gray-400 hover:text-tesla-cyan text-sm">Trang Chủ</a>
+                        <a href="buy-simulation.html" class="block text-gray-400 hover:text-tesla-cyan text-sm">Mô Phỏng BUY</a>
+                        <a href="sell-simulation.html" class="block text-gray-400 hover:text-tesla-cyan text-sm">Mô Phỏng SELL</a>
+                    </div>
+                </div>
+                <div>
+                    <h3 class="text-white font-bold mb-4">Tài Nguyên</h3>
+                    <div class="space-y-2">
+                        <a href="trading-guide.html" class="block text-gray-400 hover:text-tesla-cyan text-sm">Cẩm Nang</a>
+                        <a href="case-study.html" class="block text-white font-bold text-sm">Case Study</a>
+                    </div>
+                </div>
+            </div>
+            <p class="font-orbitron text-tesla-cyan text-xl mb-4">HỆ THỐNG 369</p>
+            <p class="text-gray-600 text-sm max-w-2xl mx-auto">
+                Dữ liệu dựa trên phân tích kế hoạch thực tế (PLAN 26XX). Giao dịch tài chính có rủi ro cao. Hãy sử dụng kiến thức này để quản trị rủi ro, không phải để đánh bạc.
+            </p>
+            <div class="mt-8 text-tesla-gold opacity-50 text-xs">
+                Generated by Gemini • Data Source: Case Study 26XX
+            </div>
+        </div>
+    </footer>
+
+    </div> <!-- Đóng div pt-16 -->
+
+    <!-- JAVASCRIPT LOGIC -->
+    <script>
+        function toggleMobileMenu() {
+            const menu = document.getElementById('mobile-menu');
+            menu.classList.toggle('hidden');
+        }
+
+        // --- COMMON CONFIG ---
+        Chart.defaults.color = '#94a3b8';
+        Chart.defaults.font.family = "'Roboto Mono', monospace";
+        
+        // Helper for wrapping labels
+        function processLabels(labels) {
+            return labels.map(label => {
+                if (label.length > 16) {
+                    const words = label.split(' ');
+                    const lines = [];
+                    let currentLine = words[0];
+                    for (let i = 1; i < words.length; i++) {
+                        if ((currentLine + " " + words[i]).length < 16) {
+                            currentLine += " " + words[i];
+                        } else {
+                            lines.push(currentLine);
+                            currentLine = words[i];
+                        }
+                    }
+                    lines.push(currentLine);
+                    return lines;
+                }
+                return label;
+            });
+        }
+
+        const commonTooltip = {
+            callbacks: {
+                title: function(tooltipItems) {
+                    const item = tooltipItems[0];
+                    let label = item.chart.data.labels[item.dataIndex];
+                    return Array.isArray(label) ? label.join(' ') : label;
+                }
+            },
+            backgroundColor: 'rgba(11, 15, 25, 0.9)',
+            titleColor: '#FFD700',
+            bodyColor: '#E2E8F0',
+            borderColor: 'rgba(255, 255, 255, 0.1)',
+            borderWidth: 1
+        };
+
+        // --- CHART 1: NUMBER WEIGHT (BAR) ---
+        new Chart(document.getElementById('weightChart'), {
+            type: 'bar',
+            data: {
+                labels: processLabels(['Đuôi .6 (Biên Cứng)', 'Đuôi .9 (Xác Nhận)', 'Đuôi .3 (Stop/Entry)', 'Các Số Khác']),
+                datasets: [{
+                    label: 'Độ Tin Cậy',
+                    data: [95, 80, 70, 20],
+                    backgroundColor: [
+                        'rgba(255, 215, 0, 0.8)', // Gold
+                        'rgba(0, 240, 255, 0.8)', // Cyan
+                        'rgba(255, 0, 255, 0.8)', // Magenta
+                        'rgba(148, 163, 184, 0.2)'
+                    ],
+                    borderWidth: 0,
+                    borderRadius: 4
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                indexAxis: 'y',
+                plugins: { legend: { display: false }, tooltip: commonTooltip },
+                scales: {
+                    x: { grid: { color: '#1F2937' } },
+                    y: { grid: { display: false } }
+                }
+            }
+        });
+
+        // --- CHART 2: CASE STUDY SIMULATION (LINE) ---
+        // Simulating the path: 2640 -> 2646 (Entry) -> 2658 (TP1) -> 2666 -> 2686 (TP2)
+        const caseStudyData = {
+            labels: ['T0: Setup', 'T1: Break 46', 'T2: Retest', 'T3: Rally', 'T4: TP1 (58)', 'T5: Break 66', 'T6: Rally', 'T7: TP2 (86)'],
+            datasets: [
+                {
+                    label: 'Giá Vàng (Mô Phỏng)',
+                    data: [2640, 2647, 2644, 2652, 2659, 2668, 2675, 2687],
+                    borderColor: '#00F0FF',
+                    backgroundColor: 'rgba(0, 240, 255, 0.1)',
+                    borderWidth: 3,
+                    tension: 0.3,
+                    fill: true,
+                    pointBackgroundColor: '#0B0F19',
+                    pointBorderColor: '#00F0FF',
+                    pointRadius: 6,
+                    pointHoverRadius: 8
+                },
+                {
+                    label: 'Entry Zone (2643-46)',
+                    data: [2646, 2646, 2646, 2646, 2646, 2646, 2646, 2646],
+                    borderColor: '#FFD700',
+                    borderDash: [5, 5],
+                    borderWidth: 2,
+                    pointRadius: 0,
+                    fill: false
+                },
+                {
+                    label: 'Stoploss (Dynamic)',
+                    data: [2636, 2636, 2636, 2646, 2646, 2656, 2656, 2656], // Trailing logic visualization
+                    borderColor: '#FF00FF',
+                    borderWidth: 2,
+                    stepped: true, // Shows the step-up nature of trailing SL
+                    pointStyle: 'crossRot',
+                    pointRadius: 4,
+                    pointBorderColor: '#FF00FF'
+                }
+            ]
+        };
+
+        new Chart(document.getElementById('caseStudyChart'), {
+            type: 'line',
+            data: caseStudyData,
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                interaction: { mode: 'index', intersect: false },
+                plugins: {
+                    legend: { position: 'top', labels: { color: '#E2E8F0' } },
+                    tooltip: {
+                        ...commonTooltip,
+                        callbacks: {
+                            ...commonTooltip.callbacks,
+                            afterBody: function(tooltipItems) {
+                                const index = tooltipItems[0].dataIndex;
+                                if (index === 1) return 'Entry Triggered: Break > 46';
+                                if (index === 4) return 'TP1 Hit: Move SL to Entry';
+                                if (index === 5) return 'Break > 66: Move SL to 56';
+                                if (index === 7) return 'TP2 Hit: Exit All';
+                            }
+                        }
+                    }
+                },
+                scales: {
+                    y: {
+                        grid: { color: '#1F2937' },
+                        suggestedMin: 2630,
+                        suggestedMax: 2690
+                    },
+                    x: { grid: { display: false } }
+                }
+            }
+        });
+
+        // --- CHART 3: RULE OF 6 (VERTICAL BAR) ---
+        new Chart(document.getElementById('rule6Chart'), {
+            type: 'bar',
+            data: {
+                labels: ['16', '26', '36', '46', '56'], // The Ladder
+                datasets: [{
+                    label: 'Mức Độ Cản',
+                    data: [80, 40, 60, 90, 50], // Higher bars for .6 edges
+                    backgroundColor: [
+                        'rgba(255, 215, 0, 0.8)', 
+                        'rgba(255, 215, 0, 0.3)',
+                        'rgba(255, 215, 0, 0.5)',
+                        'rgba(255, 215, 0, 0.9)', // 46 is strong
+                        'rgba(255, 215, 0, 0.4)'
+                    ],
+                    borderRadius: 4
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: { legend: { display: false }, tooltip: commonTooltip },
+                scales: {
+                    x: { grid: { display: false } },
+                    y: { display: false }
+                }
+            }
+        });
+
+    </script>
+</body>
+</html>
