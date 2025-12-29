@@ -1,0 +1,656 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hệ Thống Giao Dịch 369: Giải Mã Bản Đồ Vàng</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Rajdhani:wght@300;500;700&display=swap" rel="stylesheet">
+    
+    <!-- Color Palette: "Quantum Finance" based on Vibrant/High Contrast requirements -->
+    <!-- Primary: Deep Navy (#0f172a), Secondary: Slate (#1e293b) -->
+    <!-- Accents: Neon Cyan (#06b6d4), Tesla Gold (#fbbf24), Signal Red (#f43f5e) -->
+    
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        'display': ['Orbitron', 'sans-serif'],
+                        'body': ['Rajdhani', 'sans-serif'],
+                    },
+                    colors: {
+                        navy: {
+                            900: '#0f172a',
+                            800: '#1e293b',
+                        },
+                        neon: {
+                            cyan: '#06b6d4',
+                            gold: '#fbbf24',
+                            magenta: '#d946ef',
+                            green: '#22c55e'
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        body {
+            background-color: #0f172a;
+            color: #e2e8f0;
+            font-family: 'Rajdhani', sans-serif;
+        }
+
+        .navbar {
+            position: fixed;
+            top: 0;
+            width: 100%;
+            background: rgba(15, 23, 42, 0.95);
+            backdrop-filter: blur(10px);
+            z-index: 1000;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .nav-link {
+            transition: all 0.3s ease;
+        }
+
+        .nav-link:hover {
+            color: #06b6d4;
+            text-shadow: 0 0 10px rgba(6, 182, 212, 0.5);
+        }
+        
+        .chart-container {
+            position: relative;
+            width: 100%;
+            max-width: 800px; /* Max width constraint */
+            margin: 0 auto;
+            height: 400px; /* Base height */
+            max-height: 500px;
+        }
+
+        @media (max-width: 768px) {
+            .chart-container {
+                height: 300px;
+            }
+        }
+
+        .glass-panel {
+            background: rgba(30, 41, 59, 0.7);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+        }
+
+        .neon-text {
+            text-shadow: 0 0 10px rgba(6, 182, 212, 0.5);
+        }
+
+        .gold-text {
+            text-shadow: 0 0 10px rgba(251, 191, 36, 0.5);
+        }
+    </style>
+</head>
+<body class="antialiased overflow-x-hidden">
+
+    <!-- NAVIGATION -->
+    <nav class="navbar">
+        <div class="container mx-auto px-4">
+            <div class="flex items-center justify-between h-16">
+                <div class="flex items-center">
+                    <h1 class="font-display text-2xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-neon-cyan to-neon-magenta">
+                        HỆ THỐNG 369
+                    </h1>
+                </div>
+                <div class="hidden md:block">
+                    <div class="ml-10 flex items-baseline space-x-8">
+                        <a href="home.html" class="nav-link text-white font-bold px-3 py-2 rounded-md text-sm">Trang Chủ</a>
+                        <a href="buy-simulation.html" class="nav-link text-gray-300 hover:text-white px-3 py-2 rounded-md text-sm">Mô Phỏng BUY</a>
+                        <a href="sell-simulation.html" class="nav-link text-gray-300 hover:text-white px-3 py-2 rounded-md text-sm">Mô Phỏng SELL</a>
+                        <a href="trading-guide.html" class="nav-link text-gray-300 hover:text-white px-3 py-2 rounded-md text-sm">Cẩm Nang</a>
+                        <a href="case-study.html" class="nav-link text-gray-300 hover:text-white px-3 py-2 rounded-md text-sm">Case Study</a>
+                        <a href="s369-document.html" class="nav-link text-gray-300 hover:text-white px-3 py-2 rounded-md text-sm">Tài Liệu S369</a>
+                    </div>
+                </div>
+                <div class="md:hidden">
+                    <button onclick="toggleMobileMenu()" class="text-gray-300 hover:text-white">
+                        <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
+                        </svg>
+                    </button>
+                </div>
+            </div>
+            <!-- Mobile menu -->
+            <div id="mobile-menu" class="md:hidden hidden">
+                <div class="px-2 pt-2 pb-3 space-y-1 sm:px-3">
+                    <a href="home.html" class="nav-link text-white block px-3 py-2 rounded-md text-base">Trang Chủ</a>
+                    <a href="buy-simulation.html" class="nav-link text-gray-300 hover:text-white block px-3 py-2 rounded-md text-base">Mô Phỏng BUY</a>
+                    <a href="sell-simulation.html" class="nav-link text-gray-300 hover:text-white block px-3 py-2 rounded-md text-base">Mô Phỏng SELL</a>
+                    <a href="trading-guide.html" class="nav-link text-gray-300 hover:text-white block px-3 py-2 rounded-md text-base">Cẩm Nang</a>
+                    <a href="case-study.html" class="nav-link text-gray-300 hover:text-white block px-3 py-2 rounded-md text-base">Case Study</a>
+                    <a href="s369-document.html" class="nav-link text-gray-300 hover:text-white block px-3 py-2 rounded-md text-base">Tài Liệu S369</a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main content với padding-top để tránh bị che bởi navbar -->
+    <div class="pt-16">
+
+    <!-- HERO SECTION -->
+    <header class="relative min-h-screen flex items-center justify-center overflow-hidden">
+        <div class="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1639322537228-f710d846310a?q=80&w=2832&auto=format&fit=crop')] bg-cover bg-center opacity-10"></div>
+        <div class="absolute inset-0 bg-gradient-to-b from-navy-900 via-transparent to-navy-900"></div>
+        
+        <div class="container mx-auto px-4 relative z-10 text-center">
+            <h1 class="font-display text-5xl md:text-8xl font-black mb-4 text-transparent bg-clip-text bg-gradient-to-r from-neon-cyan via-white to-neon-magenta neon-text">
+                HỆ THỐNG 369
+            </h1>
+            <p class="font-body text-2xl md:text-4xl text-neon-gold mb-8 font-bold tracking-widest uppercase">
+                Giải Mã Bản Đồ Vàng (XAUUSD)
+            </p>
+            <div class="max-w-3xl mx-auto bg-navy-800/80 p-6 rounded-lg border-l-4 border-neon-cyan">
+                <p class="text-xl md:text-2xl leading-relaxed text-gray-200">
+                    "Nếu bạn biết đến sự tuyệt vời của 3, 6 và 9, bạn sẽ có chìa khóa của cả vũ trụ." <br>
+                    <span class="text-sm text-neon-cyan mt-2 block">— Nikola Tesla</span>
+                </p>
+            </div>
+            <div class="mt-12 animate-bounce text-neon-cyan text-4xl">
+                &#8595;
+            </div>
+        </div>
+    </header>
+
+    <!-- SECTION 1: THE LOGIC OF NUMBERS -->
+    <section class="py-20 bg-navy-900">
+        <div class="container mx-auto px-4">
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+                
+                <!-- Text Content -->
+                <div>
+                    <h2 class="font-display text-4xl text-white mb-6 border-b-2 border-neon-magenta inline-block pb-2">
+                        1. Quy Luật Số Gốc
+                    </h2>
+                    <p class="text-xl text-gray-300 mb-6 leading-relaxed">
+                        Thị trường không di chuyển ngẫu nhiên. Nó tuân theo các rung động số học cụ thể. Trong hệ thống này, các con số đuôi thập phân đóng vai trò quyết định hành vi giá.
+                    </p>
+                    <ul class="space-y-4">
+                        <li class="flex items-start">
+                            <span class="text-neon-gold text-2xl mr-3 font-bold">.6</span>
+                            <span class="text-lg"><strong>Điểm Biên (The Edge):</strong> Đây là "Cản Cứng". Quy luật bất biến: "Phá 6 sẽ tìm lên 6". Ví dụ: 16, 46, 76.</span>
+                        </li>
+                        <li class="flex items-start">
+                            <span class="text-neon-cyan text-2xl mr-3 font-bold">.9</span>
+                            <span class="text-lg"><strong>Điểm Xác Nhận (Confirmation):</strong> Vùng an toàn để vào lệnh. Ví dụ: .09, .49, .79.</span>
+                        </li>
+                        <li class="flex items-start">
+                            <span class="text-neon-magenta text-2xl mr-3 font-bold">.3</span>
+                            <span class="text-lg"><strong>Điểm Dừng (Stop):</strong> Giới hạn rủi ro tối đa (3.3 giá).</span>
+                        </li>
+                    </ul>
+                </div>
+
+                <!-- Visualization: Frequency Chart -->
+                <div class="glass-panel p-6 rounded-xl">
+                    <h3 class="font-display text-xl text-neon-gold mb-4 text-center">Tầm Quan Trọng Của Các Đuôi Số</h3>
+                    <div class="chart-container">
+                        <canvas id="decimalChart"></canvas>
+                    </div>
+                    <p class="text-center text-sm text-gray-400 mt-2 italic">Tần suất phản ứng giá tại các mốc thập phân</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- SECTION 2: THE MAP (ZONES) -->
+    <section class="py-20 bg-navy-800 relative">
+        <div class="absolute inset-0 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-navy-800 via-navy-900 to-black opacity-50"></div>
+        <div class="container mx-auto px-4 relative z-10">
+            <div class="text-center mb-16">
+                <h2 class="font-display text-4xl text-white mb-4">2. Bản Đồ Chiến Lược</h2>
+                <p class="text-xl text-neon-cyan">Cấu Trúc Tầng Của Giá Vàng</p>
+            </div>
+
+            <!-- CSS Grid Visualization of Zones -->
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-6xl mx-auto">
+                
+                <!-- Long Term Zone -->
+                <div class="glass-panel p-8 rounded-2xl border border-neon-magenta/30 hover:border-neon-magenta transition duration-300">
+                    <div class="text-5xl text-neon-magenta mb-4 font-display font-bold">Dài Hạn</div>
+                    <div class="space-y-4 font-body text-2xl">
+                        <div class="flex justify-between border-b border-gray-600 pb-2">
+                            <span>Biên Trên</span>
+                            <span class="text-white font-bold">4600</span>
+                        </div>
+                        <div class="flex justify-between border-b border-gray-600 pb-2 bg-neon-magenta/10 p-2 rounded">
+                            <span>Trục Xoay (9)</span>
+                            <span class="text-white font-bold">4500</span>
+                        </div>
+                        <div class="flex justify-between border-b border-gray-600 pb-2">
+                            <span>Biên Dưới</span>
+                            <span class="text-white font-bold">4200</span>
+                        </div>
+                    </div>
+                    <p class="mt-6 text-gray-400">Các mốc lớn cách nhau 300 giá. Đây là khung xương sống của thị trường.</p>
+                </div>
+
+                <!-- Medium Term Zones -->
+                <div class="glass-panel p-8 rounded-2xl border border-neon-gold/30 hover:border-neon-gold transition duration-300 md:col-span-2">
+                    <div class="text-5xl text-neon-gold mb-4 font-display font-bold">Trung Hạn</div>
+                    <p class="mb-6 text-gray-300 text-lg">Chia nhỏ mỗi 100 giá thành các vùng chiến thuật. Đây là nơi chúng ta "Săn Mồi".</p>
+                    
+                    <div class="grid grid-cols-2 gap-4">
+                        <!-- Zone Buy -->
+                        <div class="bg-navy-900 p-4 rounded-lg border-l-4 border-neon-green">
+                            <h4 class="text-neon-green font-bold text-xl mb-2">Vùng Mua (Buy)</h4>
+                            <div class="text-3xl font-bold text-white">xx.09 - xx.13</div>
+                            <div class="text-sm text-gray-400 mt-1">Điều kiện: Không thủng biên .06</div>
+                        </div>
+                         <!-- Zone Sell -->
+                         <div class="bg-navy-900 p-4 rounded-lg border-l-4 border-neon-magenta">
+                            <h4 class="text-neon-magenta font-bold text-xl mb-2">Vùng Bán (Sell)</h4>
+                            <div class="text-3xl font-bold text-white">xx.79 - xx.83</div>
+                            <div class="text-sm text-gray-400 mt-1">Điều kiện: Không vượt biên .86</div>
+                        </div>
+                        <!-- Key Resistance -->
+                        <div class="bg-navy-900 p-4 rounded-lg border-l-4 border-neon-gold col-span-2">
+                            <h4 class="text-neon-gold font-bold text-xl mb-2">Biên Cứng (Hard Edges)</h4>
+                            <div class="flex justify-between text-2xl font-bold text-white px-8">
+                                <span>16</span>
+                                <span>46</span>
+                                <span>76</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- SECTION 3: TIMING (THE PULSE) -->
+    <section class="py-20 bg-navy-900">
+        <div class="container mx-auto px-4">
+            <h2 class="font-display text-4xl text-white mb-8 text-center">3. Nhịp Đập Thời Gian</h2>
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                
+                <!-- Timing Description -->
+                <div class="lg:col-span-1 space-y-6">
+                    <div class="glass-panel p-6 rounded-lg border-l-4 border-blue-500">
+                        <h3 class="text-2xl font-bold text-blue-400">Phiên Á (07:00+)</h3>
+                        <p>Thị trường thức giấc. Xu hướng thường đi một chiều rõ rệt. Quan sát biên độ đầu ngày.</p>
+                    </div>
+                    <div class="glass-panel p-6 rounded-lg border-l-4 border-yellow-500">
+                        <h3 class="text-2xl font-bold text-yellow-400">Phiên Âu (14:00 - 16:00)</h3>
+                        <p>Giai đoạn chuyển tiếp. Thường tiếp diễn xu hướng Á hoặc tạo bẫy giá.</p>
+                    </div>
+                    <div class="glass-panel p-6 rounded-lg border-l-4 border-green-500 transform scale-105 shadow-2xl shadow-green-900/50">
+                        <h3 class="text-2xl font-bold text-green-400">Phiên Mỹ (19:30 - 21:00)</h3>
+                        <p><strong>GIỜ VÀNG:</strong> Thanh khoản cực đại. Các mốc 369 hoạt động chính xác nhất. Đây là lúc ra đòn quyết định.</p>
+                    </div>
+                </div>
+
+                <!-- Timing Chart -->
+                <div class="lg:col-span-2 glass-panel p-6 rounded-xl flex flex-col justify-center">
+                    <h3 class="text-xl text-gray-300 mb-4 text-center">Biên Độ & Sức Mạnh Theo Giờ (UTC+7)</h3>
+                    <div class="chart-container">
+                        <canvas id="timingChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- SECTION 4: SIMULATION CASE STUDY -->
+    <section class="py-20 bg-navy-800">
+        <div class="container mx-auto px-4">
+            <div class="flex flex-col md:flex-row justify-between items-end mb-8 border-b border-gray-700 pb-4">
+                <div>
+                    <h2 class="font-display text-4xl text-white">4. Thực Chiến: Điểm Xoáy</h2>
+                    <p class="text-neon-gold text-xl mt-2">Mô Phỏng Lệnh BUY ngày 25/12/2025</p>
+                </div>
+                <div class="text-right mt-4 md:mt-0">
+                    <div class="text-gray-400 text-sm">Giá Hiện Tại (Simulated)</div>
+                    <div class="text-4xl font-display font-bold text-neon-green">4517.2</div>
+                </div>
+            </div>
+
+            <!-- Simulation Chart -->
+            <div class="glass-panel p-4 md:p-8 rounded-2xl mb-8">
+                <div class="chart-container" style="height: 500px; max-height: 600px;">
+                    <canvas id="simulationChart"></canvas>
+                </div>
+            </div>
+
+            <!-- Analysis Cards -->
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
+                <div class="bg-navy-900 p-4 rounded-lg">
+                    <div class="text-gray-400 text-sm uppercase font-bold">Tín Hiệu</div>
+                    <div class="text-white text-lg">Phá vỡ giả (Fakeout)</div>
+                    <p class="text-xs text-gray-500 mt-2">16 -> 09 -> Phá 16</p>
+                </div>
+                <div class="bg-navy-900 p-4 rounded-lg">
+                    <div class="text-gray-400 text-sm uppercase font-bold">Vào Lệnh (Entry)</div>
+                    <div class="text-neon-cyan text-2xl font-bold">4516.5</div>
+                    <p class="text-xs text-gray-500 mt-2">Khi nến đóng trên biên 16</p>
+                </div>
+                <div class="bg-navy-900 p-4 rounded-lg border border-red-900/50">
+                    <div class="text-gray-400 text-sm uppercase font-bold">Dừng Lỗ (SL)</div>
+                    <div class="text-red-500 text-2xl font-bold">4513.2</div>
+                    <p class="text-xs text-gray-500 mt-2">Quy tắc vàng 3.3 giá</p>
+                </div>
+                <div class="bg-navy-900 p-4 rounded-lg border border-green-900/50">
+                    <div class="text-gray-400 text-sm uppercase font-bold">Chốt Lời (TP)</div>
+                    <div class="text-neon-green text-2xl font-bold">4546.0</div>
+                    <p class="text-xs text-gray-500 mt-2">Biên trung hạn tiếp theo</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- SECTION 5: THE CHECKLIST -->
+    <section class="py-20 bg-navy-900">
+        <div class="container mx-auto px-4 max-w-4xl">
+            <h2 class="font-display text-4xl text-white mb-12 text-center">5. Quy Tắc Sinh Tồn</h2>
+            
+            <div class="space-y-4">
+                <!-- Step 1 -->
+                <div class="flex items-center bg-navy-800 p-6 rounded-xl hover:bg-navy-700 transition">
+                    <div class="bg-neon-cyan text-navy-900 w-12 h-12 rounded-full flex items-center justify-center font-bold text-xl mr-6 shrink-0">1</div>
+                    <div>
+                        <h4 class="text-xl font-bold text-white">Kiểm Tra Thời Gian (Timing)</h4>
+                        <p class="text-gray-400">Có đang ở trong "Giờ Vàng" (19:30 - 21:00) không?</p>
+                    </div>
+                </div>
+                <!-- Step 2 -->
+                <div class="flex items-center bg-navy-800 p-6 rounded-xl hover:bg-navy-700 transition">
+                    <div class="bg-neon-cyan text-navy-900 w-12 h-12 rounded-full flex items-center justify-center font-bold text-xl mr-6 shrink-0">2</div>
+                    <div>
+                        <h4 class="text-xl font-bold text-white">Xác Định Vùng (Zone)</h4>
+                        <p class="text-gray-400">Giá đang ở đâu? Vùng 09-13 (Buy/Sell) hay Vùng Biên 16/46/76?</p>
+                    </div>
+                </div>
+                <!-- Step 3 -->
+                <div class="flex items-center bg-navy-800 p-6 rounded-xl hover:bg-navy-700 transition">
+                    <div class="bg-neon-cyan text-navy-900 w-12 h-12 rounded-full flex items-center justify-center font-bold text-xl mr-6 shrink-0">3</div>
+                    <div>
+                        <h4 class="text-xl font-bold text-white">Kiểm Tra Điều Kiện Bắt Buộc</h4>
+                        <p class="text-gray-400">Giá đã chạm mốc giới hạn (4.6 hoặc 8.6) chưa? Nếu chạm rồi -> Hủy lệnh.</p>
+                    </div>
+                </div>
+                <!-- Step 4 -->
+                <div class="flex items-center bg-navy-800 p-6 rounded-xl hover:bg-navy-700 transition">
+                    <div class="bg-neon-cyan text-navy-900 w-12 h-12 rounded-full flex items-center justify-center font-bold text-xl mr-6 shrink-0">4</div>
+                    <div>
+                        <h4 class="text-xl font-bold text-white">Xác Nhận Nến (Action)</h4>
+                        <p class="text-gray-400">Chờ nến M1/M5 rút râu tại mốc .6 hoặc mốc .9.</p>
+                    </div>
+                </div>
+                <!-- Step 5 -->
+                <div class="flex items-center bg-navy-800 p-6 rounded-xl hover:bg-navy-700 transition border border-red-500/30">
+                    <div class="bg-neon-magenta text-white w-12 h-12 rounded-full flex items-center justify-center font-bold text-xl mr-6 shrink-0">5</div>
+                    <div>
+                        <h4 class="text-xl font-bold text-neon-magenta">Quản Trị Rủi Ro (Risk)</h4>
+                        <p class="text-gray-400">Luôn cài SL 3.3 giá. Phá biên 6 -> Cắt lệnh ngay lập tức.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- FOOTER -->
+    <footer class="bg-navy-950 py-10 text-center border-t border-gray-800">
+        <div class="container mx-auto px-4">
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8 mb-8">
+                <div>
+                    <h3 class="text-white font-bold mb-4">Hệ Thống 369</h3>
+                    <p class="text-gray-500 text-sm">Phương pháp giao dịch vàng dựa trên toán học Tesla</p>
+                </div>
+                <div>
+                    <h3 class="text-white font-bold mb-4">Trang Chính</h3>
+                    <div class="space-y-2">
+                        <a href="home.html" class="block text-gray-500 hover:text-neon-cyan text-sm">Trang Chủ</a>
+                        <a href="buy-simulation.html" class="block text-gray-500 hover:text-neon-cyan text-sm">Mô Phỏng BUY</a>
+                        <a href="sell-simulation.html" class="block text-gray-500 hover:text-neon-cyan text-sm">Mô Phỏng SELL</a>
+                    </div>
+                </div>
+                <div>
+                    <h3 class="text-white font-bold mb-4">Tài Nguyên</h3>
+                    <div class="space-y-2">
+                        <a href="trading-guide.html" class="block text-gray-500 hover:text-neon-cyan text-sm">Cẩm Nang</a>
+                        <a href="case-study.html" class="block text-gray-500 hover:text-neon-cyan text-sm">Case Study</a>
+                    </div>
+                </div>
+            </div>
+            <p class="text-gray-500 font-body">Hệ Thống Giao Dịch 369 &copy; 2025</p>
+            <p class="text-xs text-gray-700 mt-2">Dữ liệu mô phỏng dựa trên phương pháp của Vũ Quang Bình.</p>
+        </div>
+    </footer>
+
+    </div> <!-- Đóng div pt-16 -->
+
+    <!-- SCRIPTS -->
+    <script>
+        function toggleMobileMenu() {
+            const menu = document.getElementById('mobile-menu');
+            menu.classList.toggle('hidden');
+        }
+
+        // --- 1. DECIMAL FREQUENCY CHART ---
+        const ctxDecimal = document.getElementById('decimalChart').getContext('2d');
+        
+        // Helper to process labels for wrapping (16 char limit)
+        function processLabels(labels) {
+            return labels.map(label => {
+                if (label.length > 16) {
+                    const words = label.split(' ');
+                    const lines = [];
+                    let currentLine = words[0];
+                    for (let i = 1; i < words.length; i++) {
+                        if ((currentLine + " " + words[i]).length < 16) {
+                            currentLine += " " + words[i];
+                        } else {
+                            lines.push(currentLine);
+                            currentLine = words[i];
+                        }
+                    }
+                    lines.push(currentLine);
+                    return lines;
+                }
+                return label;
+            });
+        }
+
+        // Tooltip Configuration (Standardized)
+        const commonTooltipConfig = {
+            callbacks: {
+                title: function(tooltipItems) {
+                    const item = tooltipItems[0];
+                    let label = item.chart.data.labels[item.dataIndex];
+                    if (Array.isArray(label)) {
+                        return label.join(' ');
+                    } else {
+                        return label;
+                    }
+                }
+            }
+        };
+
+        new Chart(ctxDecimal, {
+            type: 'bar',
+            data: {
+                labels: processLabels(['Đuôi .6 (Biên Cản Cứng)', 'Đuôi .9 (Xác Nhận Entry)', 'Đuôi .3 (Xác Nhận/SL)', 'Các Số Khác']),
+                datasets: [{
+                    label: 'Độ Quan Trọng & Tần Suất Đảo Chiều',
+                    data: [95, 80, 70, 20],
+                    backgroundColor: [
+                        'rgba(251, 191, 36, 0.8)', // Gold for .6
+                        'rgba(6, 182, 212, 0.8)',  // Cyan for .9
+                        'rgba(217, 70, 239, 0.8)', // Magenta for .3
+                        'rgba(148, 163, 184, 0.3)' // Grey for others
+                    ],
+                    borderColor: [
+                        '#fbbf24', '#06b6d4', '#d946ef', '#94a3b8'
+                    ],
+                    borderWidth: 2,
+                    borderRadius: 5
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                indexAxis: 'y', // Horizontal bar
+                plugins: {
+                    legend: { display: false },
+                    tooltip: commonTooltipConfig
+                },
+                scales: {
+                    x: { 
+                        grid: { color: 'rgba(255,255,255,0.05)' },
+                        ticks: { color: '#94a3b8' }
+                    },
+                    y: { 
+                        grid: { display: false },
+                        ticks: { color: '#e2e8f0', font: { size: 14 } }
+                    }
+                }
+            }
+        });
+
+        // --- 2. TIMING CHART ---
+        const ctxTiming = document.getElementById('timingChart').getContext('2d');
+        const hours = Array.from({length: 24}, (_, i) => `${i}h`);
+        
+        // Synthetic data representing "Volatility/Opportunity" based on the method
+        const volatilityData = hours.map((h, i) => {
+            if (i >= 7 && i <= 10) return 60; // Asia
+            if (i >= 14 && i <= 16) return 75; // Euro
+            if (i >= 19 && i <= 21) return 100; // US Peak
+            if (i >= 22) return 30; // Late US
+            return 10; // Quiet hours
+        });
+
+        new Chart(ctxTiming, {
+            type: 'bar',
+            data: {
+                labels: hours,
+                datasets: [{
+                    label: 'Sức Mạnh Thị Trường',
+                    data: volatilityData,
+                    backgroundColor: hours.map((h, i) => {
+                        if (i >= 19 && i <= 21) return 'rgba(34, 197, 94, 0.8)'; // Green for US
+                        if (i >= 14 && i <= 16) return 'rgba(251, 191, 36, 0.6)'; // Yellow for Euro
+                        if (i >= 7 && i <= 10) return 'rgba(59, 130, 246, 0.6)'; // Blue for Asia
+                        return 'rgba(255, 255, 255, 0.1)';
+                    }),
+                    borderRadius: 4
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { display: false },
+                    tooltip: commonTooltipConfig
+                },
+                scales: {
+                    y: { 
+                        beginAtZero: true,
+                        grid: { color: 'rgba(255,255,255,0.05)' },
+                        ticks: { color: '#94a3b8' }
+                    },
+                    x: {
+                        grid: { display: false },
+                        ticks: { color: '#94a3b8' }
+                    }
+                }
+            }
+        });
+
+        // --- 3. SIMULATION LINE CHART ---
+        const ctxSim = document.getElementById('simulationChart').getContext('2d');
+
+        // Data points representing the "Pivot" move: 16 -> 09 -> Break 16
+        const simData = [
+            {x: '20:30', y: 4516.0}, // Start at Edge
+            {x: '20:35', y: 4512.0},
+            {x: '20:40', y: 4509.0}, // Pivot Point (Support)
+            {x: '20:42', y: 4511.0},
+            {x: '20:44', y: 4516.2}, // Breakout
+            {x: '20:45', y: 4516.5}, // ENTRY
+            {x: '20:50', y: 4525.0},
+            {x: '21:00', y: 4535.0},
+            {x: '21:15', y: 4546.0}  // TP
+        ];
+
+        new Chart(ctxSim, {
+            type: 'line',
+            data: {
+                labels: simData.map(d => d.x),
+                datasets: [
+                    {
+                        label: 'Giá Vàng (Mô Phỏng)',
+                        data: simData.map(d => d.y),
+                        borderColor: '#06b6d4',
+                        backgroundColor: 'rgba(6, 182, 212, 0.1)',
+                        borderWidth: 3,
+                        pointBackgroundColor: '#fff',
+                        pointBorderColor: '#06b6d4',
+                        pointRadius: 5,
+                        fill: true,
+                        tension: 0.4
+                    },
+                    {
+                        label: 'Biên Cứng (16)',
+                        data: Array(simData.length).fill(4516),
+                        borderColor: 'rgba(251, 191, 36, 0.5)',
+                        borderDash: [5, 5],
+                        borderWidth: 2,
+                        pointRadius: 0,
+                        fill: false
+                    },
+                    {
+                        label: 'Pivot (09)',
+                        data: Array(simData.length).fill(4509),
+                        borderColor: 'rgba(217, 70, 239, 0.5)',
+                        borderDash: [2, 2],
+                        borderWidth: 1,
+                        pointRadius: 0,
+                        fill: false
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                interaction: {
+                    mode: 'index',
+                    intersect: false,
+                },
+                plugins: {
+                    tooltip: commonTooltipConfig,
+                    annotation: {
+                        // Chart.js annotations plugin would go here, 
+                        // but since we are sticking to core libs, we use text context via HTML cards below chart.
+                    }
+                },
+                scales: {
+                    y: {
+                        grid: { color: 'rgba(255,255,255,0.05)' },
+                        ticks: { color: '#94a3b8' },
+                        suggestedMin: 4505,
+                        suggestedMax: 4550
+                    },
+                    x: {
+                        grid: { display: false },
+                        ticks: { color: '#94a3b8' }
+                    }
+                }
+            }
+        });
+
+    </script>
+</body>
+</html>
