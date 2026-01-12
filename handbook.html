@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>369 Trading Method - SPA Infographic</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        :root {
+            --primary: #1a2a6c;
+            --secondary: #b21f1f;
+            --accent: #fdbb2d;
+            --dark: #0f172a;
+            --light: #f8fafc;
+            --success: #22c55e;
+            --danger: #ef4444;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Segoe UI', Roboto, sans-serif;
+            background-color: var(--dark);
+            color: var(--light);
+            line-height: 1.6;
+            overflow-x: hidden;
+        }
+
+        /* Hero Section */
+        header {
+            height: 60vh;
+            background: linear-gradient(rgba(15, 23, 42, 0.8), rgba(15, 23, 42, 0.9)), 
+                        url('https://images.unsplash.com/photo-1611974717482-98ea2d46e2f4?auto=format&fit=crop&q=80');
+            background-size: cover;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            border-bottom: 4px solid var(--accent);
+        }
+
+        h1 { font-size: 3rem; color: var(--accent); margin-bottom: 10px; text-transform: uppercase; letter-spacing: 2px; }
+        .subtitle { font-size: 1.2rem; opacity: 0.9; }
+
+        /* Main Layout */
+        .container { max-width: 1200px; margin: -50px auto 50px; padding: 20px; }
+
+        .section {
+            background: rgba(30, 41, 59, 0.7);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            padding: 30px;
+            margin-bottom: 40px;
+            border: 1px solid rgba(255,255,255,0.1);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+        }
+
+        h2 { color: var(--accent); margin-bottom: 25px; display: flex; align-items: center; gap: 10px; font-size: 1.8rem; }
+        h2 i { font-size: 1.5rem; }
+
+        /* Grid System */
+        .grid-3 { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px; }
+
+        .card {
+            background: rgba(15, 23, 42, 0.5);
+            padding: 20px;
+            border-radius: 10px;
+            border-left: 4px solid var(--accent);
+            transition: transform 0.3s;
+        }
+        .card:hover { transform: translateY(-5px); }
+        .card h3 { color: var(--accent); margin-bottom: 15px; font-size: 1.2rem; }
+
+        /* Status Pills */
+        .pill { display: inline-block; padding: 5px 15px; border-radius: 20px; font-size: 0.8rem; font-weight: bold; margin: 5px; }
+        .pill-red { background: var(--danger); }
+        .pill-green { background: var(--success); }
+
+        /* Session Table */
+        table { width: 100%; border-collapse: collapse; margin-top: 15px; }
+        th, td { padding: 12px; text-align: left; border-bottom: 1px solid rgba(255,255,255,0.1); }
+        th { color: var(--accent); font-weight: bold; }
+
+        /* List Styling */
+        ul { list-style: none; }
+        li { margin-bottom: 10px; display: flex; align-items: flex-start; gap: 10px; }
+        li i { color: var(--accent); margin-top: 5px; }
+
+        /* Laws Section */
+        .laws { display: flex; flex-wrap: wrap; gap: 15px; justify-content: center; }
+        .law-item {
+            background: var(--secondary);
+            padding: 15px 25px;
+            border-radius: 50px;
+            font-weight: bold;
+            box-shadow: 0 5px 15px rgba(178, 31, 31, 0.4);
+        }
+
+        footer { text-align: center; padding: 40px; font-size: 0.9rem; opacity: 0.6; }
+
+        @media (max-width: 768px) {
+            h1 { font-size: 2rem; }
+            .container { margin-top: 20px; }
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <h1>Phương Pháp 369</h1>
+        <p class="subtitle">Hệ thống tư duy: Vùng – Cấu trúc – Phản ứng giá</p>
+        <p style="margin-top: 10px;">Tác giả: Vũ Quang Bình</p>
+    </header>
+
+    <div class="container">
+        
+        <section class="section">
+            <h2><i class="fas fa-brain"></i> I. Bản chất hệ thống</h2>
+            <div class="grid-3">
+                <div class="card" style="border-left-color: var(--danger);">
+                    <h3>❌ 369 KHÔNG PHẢI</h3>
+                    <ul>
+                        <li><i class="fas fa-times"></i> Không phải Indicator hay công thức máy móc.</li>
+                        <li><i class="fas fa-times"></i> Không phải hệ thống dự đoán đúng/sai từng lệnh.</li>
+                    </ul>
+                </div>
+                <div class="card" style="border-left-color: var(--success);">
+                    <h3>✅ 369 LÀ</h3>
+                    <ul>
+                        <li><i class="fas fa-check"></i> Tư duy đọc thị trường theo cấu trúc dòng tiền.</li>
+                        <li><i class="fas fa-check"></i> Xác định nơi "được phép" giao dịch.</li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+
+        <section class="section">
+            <h2><i class="fas fa-monument"></i> II. 3 Trụ cột cốt lõi</h2>
+            <div class="grid-3">
+                <div class="card">
+                    <h3>1. VÙNG (Zone)</h3>
+                    <p>Thị trường đi theo vùng: 3 (Chú ý) - 6 (Làm việc) - 9 (Bùng nổ).</p>
+                    <p style="margin-top:10px; color: var(--danger);"><strong>Luật:</strong> Không ở vùng → KHÔNG GIAO DỊCH.</p>
+                </div>
+                <div class="card">
+                    <h3>2. CẤU TRÚC (Structure)</h3>
+                    <p>Đọc xu hướng qua: HH-HL (Tăng) hoặc LH-LL (Giảm).</p>
+                    <p style="margin-top:10px;"><strong>Luật:</strong> Phá cấu trúc → Kịch bản chết.</p>
+                </div>
+                <div class="card">
+                    <h3>3. PHẢN ỨNG GIÁ</h3>
+                    <p>Chỉ vào lệnh khi thấy: Nến từ chối, phá giả, hoặc hồi yếu.</p>
+                    <p style="margin-top:10px;"><strong>Luật:</strong> Không phản ứng → KHÔNG ENTRY.</p>
+                </div>
+            </div>
+        </section>
+
+        <section class="section">
+            <h2><i class="fas fa-clock"></i> III. Ma trận phiên & Timing</h2>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Phiên</th>
+                        <th>Đặc điểm</th>
+                        <th>Biên độ (Giá)</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>Á</strong></td>
+                        <td>Đi một chiều, ít nhịp hồi.</td>
+                        <td>25 - 30</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Âu</strong></td>
+                        <td>Test vùng, tạo cấu trúc.</td>
+                        <td>20 - 25</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Mỹ</strong></td>
+                        <td>Phá vùng, mở rộng biên độ.</td>
+                        <td>50 - 100</td>
+                    </tr>
+                </tbody>
+            </table>
+            <p style="margin-top: 15px; font-size: 0.9rem; font-style: italic;">* Entry đẹp nhất: Từ phiên Âu đến đầu phiên Mỹ.</p>
+        </section>
+
+        <section class="section">
+            <h2><i class="fas fa-shield-alt"></i> IV. Kịch bản & Quản trị</h2>
+            <div class="grid-3">
+                <div class="card">
+                    <h3>Entry & Chia lệnh</h3>
+                    <ul>
+                        <li><i class="fas fa-arrow-right"></i> Chỉ vào lệnh sau nhịp hồi.</li>
+                        <li><i class="fas fa-arrow-right"></i> Chia lệnh để thăm dò và giảm áp lực.</li>
+                    </ul>
+                </div>
+                <div class="card">
+                    <h3>Stop Loss (SL)</h3>
+                    <p>Luôn đặt <strong>3.3 giá</strong>.</p>
+                    <p style="font-size: 0.8rem; margin-top: 5px;">SL = Cấu trúc sai, không phải là thua.</p>
+                </div>
+                <div class="card">
+                    <h3>Take Profit (TP)</h3>
+                    <p>TP theo vùng giá kế tiếp.</p>
+                    <p style="font-size: 0.8rem; margin-top: 5px;">Không ăn theo pip, ăn theo cấu trúc.</p>
+                </div>
+            </div>
+        </section>
+
+        <section class="section" style="text-align: center;">
+            <h2><i class="fas fa-gavel"></i> V. 5 Luật bất thành văn</h2>
+            <div class="laws">
+                <div class="law-item">Không ở vùng → Không trade</div>
+                <div class="law-item">Không kịch bản → Không trade</div>
+                <div class="law-item">Không phản ứng → Không entry</div>
+                <div class="law-item">Mất cấu trúc → Thoát</div>
+                <div class="law-item">Không kỷ luật → Trả giá</div>
+            </div>
+        </section>
+
+    </div>
+
+    <footer>
+        <p>Hệ thống Giao dịch 369 - Tư duy kỷ luật tạo nên lợi nhuận.</p>
+        <p>Tham chiếu tài liệu Cẩm nang 369 - Tác giả Vũ Quang Bình.</p>
+    </footer>
+
+</body>
+</html>
